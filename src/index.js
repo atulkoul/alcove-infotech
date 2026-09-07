@@ -20,7 +20,18 @@ export default {
       return env.ASSETS.fetch(request);
     }
 
-    // --- Main website: serve static assets ---
+    // --- Main website: map the public root to public/main-website ---
+    if (url.pathname === "/" || url.pathname === "") {
+      const mainWebsiteUrl = new URL(request.url);
+      mainWebsiteUrl.pathname = "/main-website/index.html";
+      return env.ASSETS.fetch(new Request(mainWebsiteUrl, request));
+    }
+
+    // --- Main website assets ---
+    if (url.pathname.startsWith("/main-website/")) {
+      return env.ASSETS.fetch(request);
+    }
+
     return env.ASSETS.fetch(request);
   },
 };
