@@ -33,6 +33,7 @@ img { max-width: 100%; display: block; }
 .button.light { background: var(--white); color: var(--teal-dark); }
 .hero { padding: 92px 0 105px; background: linear-gradient(90deg, rgba(20,39,70,.91), rgba(20,39,70,.55)), url('https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=2200&q=85') center/cover; color: white; }
 .hero .lead { color: #dbeceb; }
+.hero .eyebrow, .page-hero .eyebrow { color: #ffffff; }
 .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; align-items: center; gap: 70px; }
 .home-hero-grid { grid-template-columns: 1fr; max-width: 900px; }
 .eyebrow { color: var(--coral); font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
@@ -80,12 +81,18 @@ h3 { font-size: 19px; }
 .form textarea { min-height: 140px; resize: vertical; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 700; }
-.site-footer { padding: 30px 0; background: #e8f2f1; color: var(--ink); }
-.footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 30px; }
+.site-footer { padding: 34px 0 28px; background: #edf5f4; color: var(--ink); border-top: 1px solid #cfe3e1; }
+.footer-grid { display: grid; grid-template-columns: 1.35fr .8fr 1.35fr; gap: 48px; align-items: start; }
 .site-footer .brand { color: var(--ink); }
+.site-footer .brand { gap: 0; margin-bottom: 2px; }
 .site-footer .brand img { width: 144px; height: 80px; padding: 0; border-radius: 0; background: transparent; }
 .site-footer p, .site-footer a { color: #536568; font-size: 13px; }
 .site-footer h4 { margin: 0 0 12px; color: var(--ink); }
+.footer-tagline { margin: 0 0 2px; color: var(--ink) !important; font-weight: 800; }
+.footer-locations { margin: 0; color: var(--teal-dark) !important; font-size: 12px !important; }
+.footer-contact { display: grid; gap: 6px; margin: 0; }
+.footer-contact a, .footer-contact span { display: flex; align-items: center; gap: 9px; color: #536568; }
+.footer-contact .contact-icon { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--teal); color: #ffffff; font-size: 12px; font-weight: 800; }
 .industry-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .industry-tile { min-height: 170px; display: flex; align-items: end; padding: 22px; border-radius: 7px; background-position: center; background-size: cover; position: relative; overflow: hidden; color: white; }
 .industry-tile::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,39,70,.12), rgba(20,39,70,.9)); }
