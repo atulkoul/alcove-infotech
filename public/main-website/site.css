@@ -23,7 +23,8 @@ img { max-width: 100%; display: block; }
 .site-header { padding: 10px 0; background: linear-gradient(90deg, #e5f2f0, var(--paper)); border-bottom: 1px solid var(--line); }
 .nav { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
 .brand { display: inline-flex; align-items: center; gap: 12px; font: 800 22px/1 'Manrope', sans-serif; letter-spacing: -.04em; }
-.brand img { width: 128px; height: 128px; object-fit: contain; }
+.brand span { display: none; }
+.brand img { width: 256px; height: 256px; object-fit: contain; }
 .nav-links { display: flex; align-items: center; gap: 24px; color: #536568; font-size: 14px; font-weight: 600; }
 .nav-links a:hover, .nav-links a.active { color: var(--teal); }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 5px; padding: 13px 19px; background: var(--teal); color: white; font-weight: 700; cursor: pointer; }
@@ -67,6 +68,13 @@ h3 { font-size: 22px; }
 .service-row { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 24px; padding: 30px 0; border-top: 1px solid var(--line); }
 .service-row .index { color: var(--coral); font: 800 22px/1 'Manrope', sans-serif; }
 .service-row p { margin: 0; color: var(--muted); }
+.process-flow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; align-items: stretch; }
+.process-step { position: relative; min-height: 190px; padding: 22px 18px; border: 1px solid var(--line); background: var(--white); }
+.process-step:not(:last-child) { border-right: 0; }
+.process-step:not(:last-child)::after { content: '→'; position: absolute; z-index: 2; top: 50%; right: -15px; width: 30px; height: 30px; transform: translateY(-50%); border-radius: 50%; background: var(--teal); color: white; text-align: center; font-size: 21px; line-height: 27px; }
+.process-step .number { color: var(--coral); font: 800 24px/1 'Manrope', sans-serif; }
+.process-step h3 { margin: 22px 0 10px; font-size: 18px; }
+.process-step p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
 .form { display: grid; gap: 14px; max-width: 700px; }
 .form input, .form textarea, .form select { width: 100%; border: 1px solid var(--line); border-radius: 4px; padding: 14px; background: var(--white); color: var(--ink); font: inherit; }
 .form textarea { min-height: 140px; resize: vertical; }
@@ -75,7 +83,8 @@ h3 { font-size: 22px; }
 .site-footer { padding: 42px 0; background: var(--ink); color: #d9e4df; }
 .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 30px; }
 .site-footer .brand { color: white; }
-.site-footer .brand img { width: 96px; height: 96px; padding: 5px; border-radius: 8px; background: #ffffff; }
+.site-footer .brand img { width: 192px; height: 192px; padding: 8px; border-radius: 8px; background: #ffffff; }
 .site-footer p, .site-footer a { color: #aebfba; font-size: 14px; }
 .site-footer h4 { margin: 0 0 12px; color: white; }
-@media (max-width: 800px) { .nav-links { display: none; } .brand img { width: 96px; height: 96px; } .hero-grid, .split, .grid-3, .footer-grid { grid-template-columns: 1fr; } .hero { padding-top: 65px; } .hero-card { min-height: 300px; } .section-head, .band-inner { display: block; } .section-head p { margin-top: 15px; } .band .button { margin-top: 22px; } .service-row { grid-template-columns: 45px 1fr; } .service-row p { grid-column: 2; } .form-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1000px) { .process-flow { grid-template-columns: repeat(4, 1fr); gap: 14px; } .process-step:not(:last-child) { border-right: 1px solid var(--line); } .process-step::after { display: none; } }
+@media (max-width: 800px) { .nav-links { display: none; } .brand img { width: 192px; height: 192px; } .hero-grid, .split, .grid-3, .footer-grid { grid-template-columns: 1fr; } .hero { padding-top: 65px; } .hero-card { min-height: 300px; } .section-head, .band-inner { display: block; } .section-head p { margin-top: 15px; } .band .button { margin-top: 22px; } .service-row { grid-template-columns: 45px 1fr; } .service-row p { grid-column: 2; } .form-grid { grid-template-columns: 1fr; } .process-flow { grid-template-columns: 1fr; } }
