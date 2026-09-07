@@ -7,9 +7,8 @@
 │   ├── index.js           # Worker entry — routing + tracker API
 │   └── excel.js           # Excel export utility
 ├── public/
-│   ├── index.html         # Main website (www.alcoveinfotech.com)
-│   └── tracker/
-│       └── index.html     # Candidate tracker UI (www.alcoveinfotech.com/tracker)
+│   ├── main-website/      # Main website pages (www.alcoveinfotech.com)
+│   └── tracker/            # Candidate tracker UI (www.alcoveinfotech.com/tracker)
 ├── schema.sql             # D1 database schema
 └── package.json
 ```
