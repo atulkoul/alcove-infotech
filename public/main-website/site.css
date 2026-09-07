@@ -91,7 +91,9 @@ h3 { font-size: 19px; }
 .footer-tagline { margin: 0 0 2px; color: var(--ink) !important; font-weight: 800; }
 .footer-locations { margin: 0; color: var(--teal-dark) !important; font-size: 12px !important; }
 .footer-contact { display: grid; gap: 6px; margin: 0; }
-.footer-contact a, .footer-contact span { display: flex; align-items: center; gap: 9px; color: #536568; }
+.footer-contact a, .footer-contact span { display: flex; align-items: center; gap: 9px; color: var(--ink); }
+.footer-contact a { font-size: 14px; font-weight: 800; text-decoration: underline; text-decoration-color: rgba(57,153,154,.55); text-underline-offset: 3px; }
+.footer-contact > span { font-size: 13px; font-weight: 700; }
 .footer-contact .contact-icon { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--teal); color: #ffffff; font-size: 12px; font-weight: 800; }
 .industry-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .industry-tile { min-height: 170px; display: flex; align-items: end; padding: 22px; border-radius: 7px; background-position: center; background-size: cover; position: relative; overflow: hidden; color: white; }
