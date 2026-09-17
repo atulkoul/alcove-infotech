@@ -196,6 +196,174 @@ async function handleTrackerApi(request, env) {
       return exportCandidatesExcel(result.results, corsHeaders);
     }
 
+    // ---- Requirements ----
+    if (path === "/requirements" && method === "GET") {
+      const result = await env.DB.prepare("SELECT * FROM requirements ORDER BY created_at DESC").all();
+      return jsonResponse(result.results, corsHeaders);
+    }
+
+    if (path === "/requirements" && method === "POST") {
+      const body = await request.json().catch(() => ({}));
+      const requirementId = body.requirementId || body.requirement_id || `REQ-${Date.now()}`;
+      const client = body.client || "";
+      const positionTitle = body.positionTitle || body.position_title || body.position || "";
+      const department = body.department || "";
+      const location = body.location || "";
+      const openings = Number(body.openings || 0);
+      const experience = body.experience || "";
+      const ctcBudget = body.ctcBudget || body.ctc_budget || "";
+      const noticePeriod = body.noticePeriod || body.notice_period || "";
+      const hiringManager = body.hiringManager || body.hiring_manager || "";
+      const jdLink = body.jdLink || body.jd_link || "";
+      const jobDescription = body.jobDescription || body.job_description || "";
+      const priority = body.priority || "Medium";
+      const status = body.status || "Open";
+      const targetDate = body.targetDate || body.target_date || "";
+      const recruiter = body.recruiter || body.assignedRecruiter || "";
+      const comments = body.comments || "";
+
+      await env.DB.prepare(
+        `INSERT INTO requirements (
+          requirement_id, client, position_title, department, location, openings, experience, ctc_budget,
+          notice_period, hiring_manager, jd_link, job_description, priority, status, target_date,
+          recruiter, comments
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).bind(
+        requirementId,
+        client,
+        positionTitle,
+        department,
+        location,
+        openings,
+        experience,
+        ctcBudget,
+        noticePeriod,
+        hiringManager,
+        jdLink,
+        jobDescription,
+        priority,
+        status,
+        targetDate,
+        recruiter,
+        comments
+      ).run();
+
+      const inserted = await env.DB.prepare("SELECT * FROM requirements WHERE id = last_insert_rowid()").first();
+      return jsonResponse(inserted, corsHeaders, 201);
+    }
+
+    if (path.startsWith("/requirements/") && method === "PUT") {
+      const id = path.split("/")[2];
+      const body = await request.json().catch(() => ({}));
+      const requirementId = body.requirementId || body.requirement_id || null;
+      const client = body.client || "";
+      const positionTitle = body.positionTitle || body.position_title || body.position || "";
+      const department = body.department || "";
+      const location = body.location || "";
+      const openings = Number(body.openings || 0);
+      const experience = body.experience || "";
+      const ctcBudget = body.ctcBudget || body.ctc_budget || "";
+      const noticePeriod = body.noticePeriod || body.notice_period || "";
+      const hiringManager = body.hiringManager || body.hiring_manager || "";
+      const jdLink = body.jdLink || body.jd_link || "";
+      const jobDescription = body.jobDescription || body.job_description || "";
+      const priority = body.priority || "Medium";
+      const status = body.status || "Open";
+      const targetDate = body.targetDate || body.target_date || "";
+      const recruiter = body.recruiter || body.assignedRecruiter || "";
+      const comments = body.comments || "";
+
+      await env.DB.prepare(
+        `UPDATE requirements SET
+          requirement_id = COALESCE(?, requirement_id),
+          client = ?, position_title = ?, department = ?, location = ?, openings = ?, experience = ?, ctc_budget = ?,
+          notice_period = ?, hiring_manager = ?, jd_link = ?, job_description = ?, priority = ?, status = ?, target_date = ?,
+          recruiter = ?, comments = ?
+        WHERE id = ?`
+      ).bind(
+        requirementId,
+        client,
+        positionTitle,
+        department,
+        location,
+        openings,
+        experience,
+        ctcBudget,
+        noticePeriod,
+        hiringManager,
+        jdLink,
+        jobDescription,
+        priority,
+        status,
+        targetDate,
+        recruiter,
+        comments,
+        id
+      ).run();
+
+      const updated = await env.DB.prepare("SELECT * FROM requirements WHERE id = ?").first(id);
+      return jsonResponse(updated, corsHeaders);
+    }
+
+    if (path.startsWith("/requirements/") && method === "DELETE") {
+      const id = path.split("/")[2];
+      await env.DB.prepare("DELETE FROM requirements WHERE id = ?").bind(id).run();
+      return jsonResponse({ success: true }, corsHeaders);
+    }
+
+    // ---- Interviewer teams ----
+    if (path === "/interviewer-teams" && method === "GET") {
+      const result = await env.DB.prepare("SELECT * FROM interviewer_teams ORDER BY created_at DESC").all();
+      return jsonResponse(result.results, corsHeaders);
+    }
+
+    if (path === "/interviewer-teams" && method === "POST") {
+      const body = await request.json().catch(() => ({}));
+      const teamName = body.teamName || body.team_name || "";
+      const interviewerName = body.interviewerName || body.interviewer_name || "";
+      const role = body.role || "";
+      const email = body.email || "";
+      const phone = body.phone || "";
+      const department = body.department || "";
+      const status = body.status || "Active";
+      const availability = body.availability || "";
+      const notes = body.notes || "";
+
+      await env.DB.prepare(
+        "INSERT INTO interviewer_teams (team_name, interviewer_name, role, email, phone, department, status, availability, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+      ).bind(teamName, interviewerName, role, email, phone, department, status, availability, notes).run();
+
+      const inserted = await env.DB.prepare("SELECT * FROM interviewer_teams WHERE id = last_insert_rowid()").first();
+      return jsonResponse(inserted, corsHeaders, 201);
+    }
+
+    if (path.startsWith("/interviewer-teams/") && method === "PUT") {
+      const id = path.split("/")[2];
+      const body = await request.json().catch(() => ({}));
+      const teamName = body.teamName || body.team_name || "";
+      const interviewerName = body.interviewerName || body.interviewer_name || "";
+      const role = body.role || "";
+      const email = body.email || "";
+      const phone = body.phone || "";
+      const department = body.department || "";
+      const status = body.status || "Active";
+      const availability = body.availability || "";
+      const notes = body.notes || "";
+
+      await env.DB.prepare(
+        "UPDATE interviewer_teams SET team_name = ?, interviewer_name = ?, role = ?, email = ?, phone = ?, department = ?, status = ?, availability = ?, notes = ? WHERE id = ?"
+      ).bind(teamName, interviewerName, role, email, phone, department, status, availability, notes, id).run();
+
+      const updated = await env.DB.prepare("SELECT * FROM interviewer_teams WHERE id = ?").first(id);
+      return jsonResponse(updated, corsHeaders);
+    }
+
+    if (path.startsWith("/interviewer-teams/") && method === "DELETE") {
+      const id = path.split("/")[2];
+      await env.DB.prepare("DELETE FROM interviewer_teams WHERE id = ?").bind(id).run();
+      return jsonResponse({ success: true }, corsHeaders);
+    }
+
     // ---- Shared tracker state sync (cross-device persistence) ----
     if (path === "/sync" && method === "GET") {
       const result = await env.DB.prepare("SELECT key, value FROM tracker_state").all();
@@ -247,12 +415,16 @@ async function handleTrackerApi(request, env) {
     if (path === "/stats" && method === "GET") {
       const totalCandidates = await env.DB.prepare("SELECT COUNT(*) as count FROM candidates").first();
       const totalClients = await env.DB.prepare("SELECT COUNT(*) as count FROM clients").first();
+      const totalRequirements = await env.DB.prepare("SELECT COUNT(*) as count FROM requirements").first();
+      const totalInterviewerTeams = await env.DB.prepare("SELECT COUNT(*) as count FROM interviewer_teams").first();
       const byStatus = await env.DB.prepare(
         "SELECT status, COUNT(*) as count FROM candidates GROUP BY status"
       ).all();
       return jsonResponse({
         totalCandidates: totalCandidates.count,
         totalClients: totalClients.count,
+        totalRequirements: totalRequirements.count,
+        totalInterviewerTeams: totalInterviewerTeams.count,
         byStatus: byStatus.results,
       }, corsHeaders);
     }

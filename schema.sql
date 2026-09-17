@@ -39,3 +39,43 @@ CREATE TABLE IF NOT EXISTS tracker_state (
   value TEXT NOT NULL,
   updated_at TEXT DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS requirements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  requirement_id TEXT,
+  client TEXT,
+  position_title TEXT,
+  department TEXT,
+  location TEXT,
+  openings INTEGER DEFAULT 0,
+  experience TEXT,
+  ctc_budget TEXT,
+  notice_period TEXT,
+  hiring_manager TEXT,
+  jd_link TEXT,
+  job_description TEXT,
+  priority TEXT DEFAULT 'Medium',
+  status TEXT DEFAULT 'Open',
+  target_date TEXT,
+  recruiter TEXT,
+  profiles_submitted INTEGER DEFAULT 0,
+  interviews INTEGER DEFAULT 0,
+  offers INTEGER DEFAULT 0,
+  joinees INTEGER DEFAULT 0,
+  comments TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS interviewer_teams (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  team_name TEXT,
+  interviewer_name TEXT,
+  role TEXT,
+  email TEXT,
+  phone TEXT,
+  department TEXT,
+  status TEXT DEFAULT 'Active',
+  availability TEXT,
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
