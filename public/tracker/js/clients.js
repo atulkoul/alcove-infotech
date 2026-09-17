@@ -70,9 +70,10 @@ function generateClientId() {
    Save Clients
 =========================================================== */
 
-function saveClients() {
+async function saveClients() {
 
     localStorage.setItem("armsClients", JSON.stringify(clients));
+    return persistTrackerData({ clients });
 
 }
 
@@ -80,12 +81,16 @@ function saveClients() {
    Load Clients
 =========================================================== */
 
-function loadClients() {
+async function loadClients() {
 
-    const data = localStorage.getItem("armsClients");
+    const remoteData = await loadTrackerStateFromServer();
+    const data = remoteData && Array.isArray(remoteData.clients)
+        ? remoteData.clients
+        : localStorage.getItem("armsClients");
 
     if (data) {
-        clients = JSON.parse(data);
+        clients = Array.isArray(data) ? data : JSON.parse(data);
+        localStorage.setItem("armsClients", JSON.stringify(clients));
     }
 
 }

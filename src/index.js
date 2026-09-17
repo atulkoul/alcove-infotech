@@ -196,6 +196,53 @@ async function handleTrackerApi(request, env) {
       return exportCandidatesExcel(result.results, corsHeaders);
     }
 
+    // ---- Shared tracker state sync (cross-device persistence) ----
+    if (path === "/sync" && method === "GET") {
+      const result = await env.DB.prepare("SELECT key, value FROM tracker_state").all();
+      const state = {};
+      for (const row of result.results || []) {
+        try {
+          state[row.key] = JSON.parse(row.value);
+        } catch (_error) {
+          state[row.key] = row.value;
+        }
+      }
+      return jsonResponse(state, corsHeaders);
+    }
+
+    if (path === "/sync" && (method === "POST" || method === "PUT")) {
+      const body = await request.json().catch(() => ({}));
+      const allowedKeys = [
+        "candidates",
+        "clients",
+        "requirements",
+        "team",
+        "vendors",
+        "interviews",
+        "invoices",
+        "deletedEntries",
+        "lastCandidateId",
+        "clientCounter",
+        "requirementCounter",
+        "vendorCounter",
+        "invoiceCounter"
+      ];
+
+      const entries = Object.entries(body || {}).filter(([key]) => allowedKeys.includes(key));
+      if (!entries.length) {
+        return jsonResponse({ success: false, message: "No valid tracker data supplied" }, corsHeaders, 400);
+      }
+
+      for (const [key, value] of entries) {
+        const payload = JSON.stringify(value ?? null);
+        await env.DB.prepare(
+          "INSERT INTO tracker_state (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at"
+        ).bind(key, payload, new Date().toISOString()).run();
+      }
+
+      return jsonResponse({ success: true, saved: entries.length }, corsHeaders);
+    }
+
     // ---- Dashboard stats ----
     if (path === "/stats" && method === "GET") {
       const totalCandidates = await env.DB.prepare("SELECT COUNT(*) as count FROM candidates").first();

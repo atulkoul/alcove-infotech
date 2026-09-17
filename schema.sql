@@ -33,3 +33,9 @@ CREATE TABLE IF NOT EXISTS candidate_history (
   changed_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (candidate_id) REFERENCES candidates(id)
 );
+
+CREATE TABLE IF NOT EXISTS tracker_state (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TEXT DEFAULT (datetime('now'))
+);

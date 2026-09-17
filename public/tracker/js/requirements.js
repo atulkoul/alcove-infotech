@@ -66,18 +66,22 @@ function generateRequirementId() {
    Save / Load Requirements
 =========================================================== */
 
-function saveRequirements() {
+async function saveRequirements() {
 
     localStorage.setItem("armsRequirements", JSON.stringify(requirements));
+    return persistTrackerData({ requirements });
 
 }
 
-function loadRequirements() {
+async function loadRequirements() {
 
-    const data = localStorage.getItem("armsRequirements");
+    const remoteData = await loadTrackerStateFromServer();
+    const data = remoteData && Array.isArray(remoteData.requirements)
+        ? remoteData.requirements
+        : localStorage.getItem("armsRequirements");
 
     if (data) {
-        requirements = JSON.parse(data);
+        requirements = Array.isArray(data) ? data : JSON.parse(data);
         if (Array.isArray(requirements)) {
             requirements.forEach((req) => {
                 if (!req || typeof req !== "object") return;
@@ -86,6 +90,7 @@ function loadRequirements() {
                 }
             });
         }
+        localStorage.setItem("armsRequirements", JSON.stringify(requirements));
     }
 
 }
