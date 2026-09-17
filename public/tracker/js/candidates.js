@@ -14,7 +14,7 @@ function createCandidate() {
 
     return {
 
-        candidateId: generateCandidateId(),
+        id: null,
 
         date: "",
         client: "",
@@ -99,7 +99,7 @@ function renderTable() {
             document.createElement("tr");
 
         row.innerHTML =
-            '<td>' + (candidate.candidateId || "") + '</td>' +
+            '<td>' + (candidate.id || "") + '</td>' +
             '<td>' + (candidate.candidateName || "") + '</td>' +
             '<td>' + (candidate.client || "") + '</td>' +
             '<td>' + getRequirementName(candidate.role) + '</td>' +
@@ -208,7 +208,7 @@ function renderFilteredTable(data){
             document.createElement("tr");
 
         row.innerHTML =
-            '<td>' + (candidate.candidateId || "") + '</td>' +
+            '<td>' + (candidate.id || "") + '</td>' +
             '<td>' + (candidate.candidateName || "") + '</td>' +
             '<td>' + (candidate.client || "") + '</td>' +
             '<td>' + getRequirementName(candidate.role) + '</td>' +
@@ -236,7 +236,8 @@ function deleteCandidate(index){
 
     if(confirm("Delete this candidate?")){
 
-        archiveDeletedEntry("candidate", candidates[index]);
+        const candidate = candidates[index];
+        fetch(`/tracker/api/candidates/${candidate.id}`, { method: "DELETE" });
         candidates.splice(index,1);
 
         saveCandidates();

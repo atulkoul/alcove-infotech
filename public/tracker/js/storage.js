@@ -138,7 +138,43 @@ async function persistTrackerData(snapshot = {}) {
 }
 
 async function saveCandidates() {
-    return persistTrackerData({ candidates });
+    return Promise.all(candidates.map(async candidate => {
+        const client = typeof clients !== "undefined"
+            ? clients.find(item => item.clientName === candidate.client)
+            : null;
+        const notes = JSON.stringify(candidate);
+        let response;
+
+        if (candidate.id) {
+            response = await fetch(`/tracker/api/candidates/${candidate.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: candidate.candidateName,
+                    email: candidate.email,
+                    phone: candidate.mobile,
+                    position: candidate.role,
+                    client_id: client ? client.id : null,
+                    status: candidate.status,
+                    notes
+                })
+            });
+        } else {
+            const formData = new FormData();
+            formData.set("name", candidate.candidateName);
+            formData.set("email", candidate.email || "");
+            formData.set("phone", candidate.mobile || "");
+            formData.set("position", candidate.role || "");
+            formData.set("client_id", client ? String(client.id) : "");
+            formData.set("notes", notes);
+            response = await fetch("/tracker/api/candidates", { method: "POST", body: formData });
+        }
+
+        if (!response.ok) throw new Error("Unable to save candidate");
+        const saved = await response.json();
+        candidate.id = saved.id;
+        return saved;
+    }));
 }
 
 function archiveDeletedEntry(type, entry) {
@@ -153,28 +189,21 @@ function archiveDeletedEntry(type, entry) {
 }
 
 async function loadCandidates() {
-    const remoteData = await loadTrackerStateFromServer();
-
-    const localData = localStorage.getItem("armsCandidates");
-    const sourceData = (remoteData && Array.isArray(remoteData.candidates)) ? remoteData.candidates : (localData ? JSON.parse(localData) : null);
-
-    if (sourceData) {
-        candidates = Array.isArray(sourceData) ? sourceData : [];
-        writeSnapshotToLocalStorage({ candidates });
-
-        const resetCandidate = candidates.find(candidate => candidate && candidate.candidateId === "ALC00003");
-        if (resetCandidate && !candidates.some(candidate => candidate && candidate.candidateId === "ALC00002")) {
-            resetCandidate.candidateId = "ALC00002";
-            if (localStorage.getItem("lastCandidateId") === "3") {
-                localStorage.setItem("lastCandidateId", "2");
-            }
-            await saveCandidates();
-        }
-
-        return;
-    }
-
-    candidates = [];
+    const response = await fetch("/tracker/api/candidates");
+    if (!response.ok) throw new Error("Unable to load candidates");
+    candidates = (await response.json()).map(candidate => {
+        let details = {};
+        try { details = candidate.notes ? JSON.parse(candidate.notes) : {}; } catch (_) {}
+        return {
+            ...details,
+            ...candidate,
+            id: candidate.id,
+            candidateName: candidate.name,
+            mobile: candidate.phone,
+            role: candidate.position,
+            client: details.client || candidate.client_name || ""
+        };
+    });
 }
 
 if (typeof window !== "undefined") {

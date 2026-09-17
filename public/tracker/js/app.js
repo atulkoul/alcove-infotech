@@ -82,13 +82,15 @@ function switchView(viewName) {
    DOM Ready
 ========================================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     runOneTimeDataReset();
     initializeAppStorageState();
 
-    loadCandidates();
-    loadClients();
-    loadRequirements();
+    await Promise.all([
+        loadCandidates(),
+        loadClients(),
+        loadRequirements()
+    ]);
     loadVendors();
     loadInterviews();
     loadInvoices();
@@ -302,8 +304,7 @@ async function saveCandidate(){
 }
 else{
 
-    candidate.candidateId =
-        existingCandidate.candidateId;
+    candidate.id = existingCandidate.id;
 
     candidates[editIndex] = candidate;
 
