@@ -69,7 +69,20 @@ async function saveRequirements() {
 async function loadRequirements() {
     const response = await fetch("/tracker/api/requirements");
     if (!response.ok) throw new Error("Unable to load requirements");
-    requirements = await response.json();
+    requirements = (await response.json()).map(requirement => ({
+        ...requirement,
+        id: requirement.id,
+        requirementId: requirement.requirement_id,
+        positionTitle: requirement.position_title,
+        ctcBudget: requirement.ctc_budget,
+        noticePeriod: requirement.notice_period,
+        hiringManager: requirement.hiring_manager,
+        jdLink: requirement.jd_link,
+        jobDescription: requirement.job_description,
+        targetDate: requirement.target_date,
+        profilesSubmitted: requirement.profiles_submitted,
+        createdDate: requirement.created_at
+    }));
 
 }
 
@@ -198,7 +211,7 @@ function renderFilteredRequirements(data) {
         const row = document.createElement("tr");
 
         row.innerHTML =
-            '<td>' + (req.requirementId || "") + '</td>' +
+            '<td>' + (req.id || "") + '</td>' +
             '<td>' + (req.client || "") + '</td>' +
             '<td>' + (req.positionTitle || "") + '</td>' +
             '<td>' + (req.openings || "") + '</td>' +
@@ -326,7 +339,7 @@ function renderRequirements() {
         const row = document.createElement("tr");
 
         row.innerHTML =
-            '<td>' + (req.requirementId || "") + '</td>' +
+            '<td>' + (req.id || "") + '</td>' +
             '<td>' + (req.client || "") + '</td>' +
             '<td>' + (req.positionTitle || "") + '</td>' +
             '<td>' + (req.openings || "") + '</td>' +
