@@ -14,7 +14,7 @@ function createClient() {
 
     return {
 
-        clientId: generateClientId(),
+        id: null,
 
         clientName: "",
         industry: "",
@@ -50,30 +50,28 @@ function createClient() {
    Generate Client ID
 =========================================================== */
 
-function generateClientId() {
-
-    let lastId = localStorage.getItem("armsClientCounter");
-
-    if (!lastId) {
-        lastId = 1;
-    } else {
-        lastId = parseInt(lastId) + 1;
-    }
-
-    localStorage.setItem("armsClientCounter", lastId);
-
-    return "CLI" + String(lastId).padStart(4, "0");
-
-}
-
 /* ===========================================================
    Save Clients
 =========================================================== */
 
 async function saveClients() {
-
-    localStorage.setItem("armsClients", JSON.stringify(clients));
-    return persistTrackerData({ clients });
+    return Promise.all(clients.map(async client => {
+        const response = await fetch(client.id ? `/tracker/api/clients/${client.id}` : "/tracker/api/clients", {
+            method: client.id ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                name: client.clientName,
+                company: client.industry,
+                email: client.email,
+                phone: client.mobile,
+                notes: JSON.stringify(client)
+            })
+        });
+        if (!response.ok) throw new Error("Unable to save client");
+        const saved = await response.json();
+        client.id = saved.id;
+        return saved;
+    }));
 
 }
 
@@ -82,16 +80,13 @@ async function saveClients() {
 =========================================================== */
 
 async function loadClients() {
-
-    const remoteData = await loadTrackerStateFromServer();
-    const data = remoteData && Array.isArray(remoteData.clients)
-        ? remoteData.clients
-        : localStorage.getItem("armsClients");
-
-    if (data) {
-        clients = Array.isArray(data) ? data : JSON.parse(data);
-        localStorage.setItem("armsClients", JSON.stringify(clients));
-    }
+    const response = await fetch("/tracker/api/clients");
+    if (!response.ok) throw new Error("Unable to load clients");
+    clients = (await response.json()).map(client => {
+        let details = {};
+        try { details = client.notes ? JSON.parse(client.notes) : {}; } catch (_) {}
+        return { ...details, ...client, id: client.id, clientName: client.name, industry: client.company, mobile: client.phone };
+    });
 
 }
 
@@ -177,7 +172,7 @@ function renderClients(data = clients) {
         const row = document.createElement("tr");
 
         row.innerHTML =
-            '<td>' + (client.clientId || "") + '</td>' +
+            '<td>' + (client.id || "") + '</td>' +
             '<td>' + (client.clientName || "") + '</td>' +
             '<td>' + (client.pocName || "") + '</td>' +
             '<td>' + (client.mobile || "") + '</td>' +
@@ -307,7 +302,7 @@ function editClient(index) {
    Save Client
 =========================================================== */
 
-function saveClient() {
+async function saveClient() {
 
     const clientName = getClientFieldValue("clientNameInput", "clientName").trim();
 
@@ -343,7 +338,12 @@ function saveClient() {
     client.paymentDate = getClientFieldValue("paymentDateInput", "paymentDate");
     client.comments = getClientFieldValue("clientCommentsInput", "clientComments");
 
-    saveClients();
+    try {
+        await saveClients();
+    } catch (error) {
+        alert(error.message);
+        return;
+    }
     renderClients();
     populateClientDropdown();
     updateMainDashboard();
@@ -356,12 +356,16 @@ function saveClient() {
    Delete Client
 =========================================================== */
 
-function deleteClient(index) {
+async function deleteClient(index) {
 
     if (confirm("Delete this client?")) {
-        archiveDeletedEntry("client", clients[index]);
+        const client = clients[index];
+        const response = await fetch(`/tracker/api/clients/${client.id}`, { method: "DELETE" });
+        if (!response.ok) {
+            alert("Unable to delete client");
+            return;
+        }
         clients.splice(index, 1);
-        saveClients();
         renderClients();
         populateClientDropdown();
         updateMainDashboard();

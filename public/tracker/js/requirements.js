@@ -15,7 +15,7 @@ function createRequirement() {
 
     return {
 
-        requirementId: generateRequirementId(),
+        id: null,
         client: "",
         positionTitle: "",
         department: "",
@@ -46,52 +46,30 @@ function createRequirement() {
    Generate Requirement ID
 =========================================================== */
 
-function generateRequirementId() {
-
-    let counter = localStorage.getItem("armsRequirementCounter");
-
-    if (!counter) {
-        counter = 1;
-    } else {
-        counter = parseInt(counter) + 1;
-    }
-
-    localStorage.setItem("armsRequirementCounter", counter);
-
-    return "REQ" + String(counter).padStart(5, "0");
-
-}
-
 /* ===========================================================
    Save / Load Requirements
 =========================================================== */
 
 async function saveRequirements() {
-
-    localStorage.setItem("armsRequirements", JSON.stringify(requirements));
-    return persistTrackerData({ requirements });
+    return Promise.all(requirements.map(async requirement => {
+        const response = await fetch(requirement.id ? `/tracker/api/requirements/${requirement.id}` : "/tracker/api/requirements", {
+            method: requirement.id ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requirement)
+        });
+        if (!response.ok) throw new Error("Unable to save requirement");
+        const saved = await response.json();
+        requirement.id = saved.id;
+        requirement.requirementId = saved.requirement_id;
+        return saved;
+    }));
 
 }
 
 async function loadRequirements() {
-
-    const remoteData = await loadTrackerStateFromServer();
-    const data = remoteData && Array.isArray(remoteData.requirements)
-        ? remoteData.requirements
-        : localStorage.getItem("armsRequirements");
-
-    if (data) {
-        requirements = Array.isArray(data) ? data : JSON.parse(data);
-        if (Array.isArray(requirements)) {
-            requirements.forEach((req) => {
-                if (!req || typeof req !== "object") return;
-                if (!req.recruiter && req.assignedRecruiter) {
-                    req.recruiter = req.assignedRecruiter;
-                }
-            });
-        }
-        localStorage.setItem("armsRequirements", JSON.stringify(requirements));
-    }
+    const response = await fetch("/tracker/api/requirements");
+    if (!response.ok) throw new Error("Unable to load requirements");
+    requirements = await response.json();
 
 }
 
@@ -562,12 +540,16 @@ function editRequirement(index) {
 
 }
 
-function deleteRequirement(index) {
+async function deleteRequirement(index) {
 
     if (confirm("Delete this requirement?")) {
-        archiveDeletedEntry("requirement", requirements[index]);
+        const requirement = requirements[index];
+        const response = await fetch(`/tracker/api/requirements/${requirement.id}`, { method: "DELETE" });
+        if (!response.ok) {
+            alert("Unable to delete requirement");
+            return;
+        }
         requirements.splice(index, 1);
-        saveRequirements();
         renderRequirementsGrid();
         populateRequirementDropdown();
     }
